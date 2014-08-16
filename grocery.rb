@@ -20,25 +20,10 @@ all_products = sales.merge(products){|key, sales_volume, category| [category, sa
 categories = products.values.uniq
 categories_with_sales = all_products.values
 
-all_products_by_category = all_products.sort_by{|product, info| info[0]}
-categories_with_sales = all_products.values
 
-# group_sales = []
-# total_item_sales = 0
-# categories.each do |category|
-#   categories_with_sales.each do |item|
-#     if item[0] == category
-#       hash = Hash[category, item[1]]
-#       group_sales << hash
-#     end
-#   end
-# end
-# puts "#{group_sales}"
-
-
-#Group Sales by Category
+#Sales by Category
 group_sales = []
-total_item_sales = 0
+sales_volume = {}
 categories.each do |category|
   categories_with_sales.each do |item|
     if item[0] == category
@@ -46,12 +31,23 @@ categories.each do |category|
       group_sales << hash
     end
   end
+  sales_volume[category] = group_sales.select {|h| h[category]}.collect {|h| h[category]}
 end
-puts "#{group_sales.first}"
 
+total_sales = {}
+sales_volume.each_pair do |category, sales_value|
+  sales_value = sales_value.inject{|sum,x| sum + x }
+  total_sales[category] = sales_value
+end
+top_categories = total_sales.sort_by{|category, sales_value| sales_value}.reverse!
+puts "The top five categories by sales are the following:"
+top_categories.first(5).each do |category|
+  puts category
+  puts
+end
 
 #Find Top selling Candy
 all_candy = all_products.select{|product, info| info[0] == "Candy"}
-all_candy = all_candy.sort_by{|product, info| info[1]}
-top_candy = all_candy.last
-puts "The top selling candy is #{top_candy[0]}"
+all_candy = all_candy.sort_by{|product, info| info[1]}.reverse!
+puts "The top selling candy is the following:"
+puts all_candy.first[0]
