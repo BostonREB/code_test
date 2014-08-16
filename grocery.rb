@@ -1,5 +1,6 @@
 require 'csv'
 
+#Build full product list including sales and cetegories
 products = {}
 CSV.foreach("products.tab", { :col_sep => "\t" }) do |row|
   name, category = row
@@ -18,20 +19,17 @@ all_products = sales.merge(products){|key, sales_volume, category| [category, sa
 
 #Find Top Five Categories By Sales
 categories = products.values.uniq
-categories_with_sales = all_products.values
-
-
-#Sales by Category
-group_sales = []
+item_category_with_sales = all_products.values
+category_sales = []
 sales_volume = {}
 categories.each do |category|
-  categories_with_sales.each do |item|
+  item_category_with_sales.each do |item|
     if item[0] == category
-      hash = Hash[category, item[1].to_f]
-      group_sales << hash
+      item_sales = Hash[category, item[1].to_f]
+      category_sales << item_sales
     end
   end
-  sales_volume[category] = group_sales.select {|h| h[category]}.collect {|h| h[category]}
+  sales_volume[category] = category_sales.select {|h| h[category]}.collect {|h| h[category]}
 end
 
 total_sales = {}
@@ -39,6 +37,7 @@ sales_volume.each_pair do |category, sales_value|
   sales_value = sales_value.inject{|sum,x| sum + x }
   total_sales[category] = sales_value
 end
+
 top_categories = total_sales.sort_by{|category, sales_value| sales_value}.reverse!
 puts "The top five categories by sales are the following:"
 top_categories.first(5).each do |category|
